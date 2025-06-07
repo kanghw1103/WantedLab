@@ -1,0 +1,37 @@
+[project]
+name = "wanted-lab"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "hyowon",email = "kanghw1103@naver.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+
+
+[tool.poetry.dependencies]
+python = ">=3.12"
+django = ">=5.2.2,<6.0.0"
+djangorestframework = ">=3.14.0,<4.0.0"
+django-cors-headers = ">=4.3.1,<5.0.0"
+python-dotenv = ">=1.0.0,<2.0.0"
+django-filter = ">=23.5,<24.0"
+ruff = "^0.9.6"
+fastapi = "^0.110.0"
+uvicorn = "^0.27.1"
+
+[tool.poetry]
+package-mode = false
+
+[tool.ruff]
+line-length = 119
+exclude = ["migrations", "projects", "modules", ".yaml"]
+
+[tool.ruff.lint]
+ignore = [
+    "E731", # lambda-assignment
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
