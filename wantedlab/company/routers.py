@@ -91,3 +91,18 @@ async def list_companies_by_tag(
     )
 
 
+@router.post(
+    "/{company_id}/tags",
+    response_model=TagUpdateResponse,
+    status_code=status.HTTP_200_OK,
+    summary="회사에 태그 추가",
+    description="지정된 회사에 새로운 태그를 추가합니다.",
+    responses={404: {"description": "회사를 찾을 수 없음"}, 400: {"description": "잘못된 태그 요청"}},
+)
+async def add_tag_to_company(
+    company_id: Annotated[int, Path(description="태그를 추가할 회사 ID")],
+    tag_id: Annotated[int, Body(description="추가할 태그 ID")],
+):
+    return await CompanyView.add_company_tag(company_id, tag_id)
+
+

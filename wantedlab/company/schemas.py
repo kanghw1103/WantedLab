@@ -36,3 +36,6 @@ class PaginatedCompanyResponse(BaseModel):
     offset: int
 
 
+class TagUpdateResponse(BaseModel):
+    company_id: int
+    tags: list[CompanyTagSchema]
