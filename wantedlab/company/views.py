@@ -137,6 +137,18 @@ class CompanyView:
             raise HTTPException(status_code=400, detail="태그가 이미 존재합니다.")
 
     @staticmethod
+    async def delete_company_tag(company_id: int, tag_id: int) -> TagUpdateResponse:
+        try:
+            company: Company = await sync_to_async(Company.objects.get)(id=company_id)
+            tag: Tag = await sync_to_async(Tag.objects.get)(id=tag_id)
+            await sync_to_async(company.tags.remove)(tag)
+            return await CompanyView._company_tag_response(company, company_id)
+        except Company.DoesNotExist:
+            raise HTTPException(status_code=404, detail="회사를 찾을 수 없습니다.")
+        except Tag.DoesNotExist:
+            raise HTTPException(status_code=404, detail="태그를 찾을 수 없습니다.")
+
+    @staticmethod
     async def _company_tag_response(company: Company, company_id: int) -> TagUpdateResponse:
         tags = await sync_to_async(list)(company.tags.all())
         tag_schemas = [

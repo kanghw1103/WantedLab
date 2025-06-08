@@ -106,3 +106,18 @@ async def add_tag_to_company(
     return await CompanyView.add_company_tag(company_id, tag_id)
 
 
+@router.delete(
+    "/{company_id}/tags/{tag_id}",
+    response_model=TagUpdateResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="회사에서 태그 제거",
+    description="지정된 회사에서 특정 태그를 제거합니다.",
+    responses={
+        404: {"description": "회사 또는 태그를 찾을 수 없음"},
+    },
+)
+async def remove_tag_from_company(
+    company_id: Annotated[int, Path(description="태그를 제거할 회사 ID")],
+    tag_id: Annotated[int, Path(description="제거할 태그 ID")],
+):
+    return await CompanyView.delete_company_tag(company_id, tag_id)
