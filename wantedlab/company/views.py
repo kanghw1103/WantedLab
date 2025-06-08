@@ -3,12 +3,12 @@ from django.db import IntegrityError
 from django.db.models import Q, QuerySet
 from fastapi import HTTPException
 
-from wantedlab.company.models import TAG_INFO_MAP, Company, CompanyTag
+from wantedlab.company.models import TAG_INFO_MAP, Company, CompanyTag, Tag
 from wantedlab.company.schemas import (
     AutocompletedCompanySchema,
-    PaginatedAutocompleteResponse,
     CompanySchema,
     CompanyTagSchema,
+    PaginatedAutocompleteResponse,
     PaginatedCompanyResponse,
     TagUpdateResponse,
 )
@@ -74,4 +74,50 @@ class CompanyView:
                 for tag in tags
             ],
         )
+
+    @staticmethod
+    async def list_companies_company_by_tag(
+        full_tag: str,
+        offset: int,
+        limit: int,
+    ) -> PaginatedCompanyResponse:
+        try:
+            _, number = full_tag.split("_")
+            tag: Tag = await sync_to_async(Tag.objects.get)(number=int(number))
+            companies: QuerySet[Company] = await sync_to_async(tag.companies.all)()
+
+            total = await sync_to_async(companies.count)()
+
+            if not total:
+                return PaginatedCompanyResponse(
+                    items=[],
+                    total=0,
+                    limit=limit,
+                    offset=offset,
+                )
+
+            paginated_companies = companies[offset : offset + limit]
+            companies_list = await sync_to_async(list)(paginated_companies)
+
+            items = []
+            for company in companies_list:
+                tags = await sync_to_async(list)(company.tags.all())
+                items.append(
+                    CompanySchema(
+                        id=company.id,
+                        name_ko=company.name_ko,
+                        name_en=company.name_en,
+                        name_ja=company.name_ja,
+                        tags=[CompanyTagSchema(id=tag.id, name=tag.name, number=tag.number) for tag in tags],
+                    )
+                )
+
+            return PaginatedCompanyResponse(
+                items=items,
+                total=total,
+                limit=limit,
+                offset=offset,
+            )
+        except Tag.DoesNotExist:
+            raise HTTPException(status_code=404, detail="태그를 찾을 수 없습니다.")
 

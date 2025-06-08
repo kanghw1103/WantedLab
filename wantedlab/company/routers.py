@@ -73,3 +73,21 @@ async def search_company_by_name(
     return company
 
 
+@router.get(
+    "/tag/{tag}",
+    response_model=PaginatedCompanyResponse,
+    summary="태그로 회사 검색",
+    description="특정 태그가 지정된 모든 회사를 검색합니다. 페이지네이션을 지원합니다.",
+)
+async def list_companies_by_tag(
+    tag: Annotated[str, Path(description="검색할 태그")],
+    offset: Annotated[int, Query(ge=0, description="건너뛸 항목 수")] = 0,
+    limit: Annotated[int, Query(ge=1, le=100, description="반환할 최대 항목 수")] = 10,
+) -> PaginatedCompanyResponse:
+    return await CompanyView.list_companies_company_by_tag(
+        full_tag=tag,
+        offset=offset,
+        limit=limit,
+    )
+
+

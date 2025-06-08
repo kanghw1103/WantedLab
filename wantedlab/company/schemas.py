@@ -28,3 +28,11 @@ class CompanySchema(BaseModel):
     name_ja: str | None
     tags: list[CompanyTagSchema] | None
 
+
+class PaginatedCompanyResponse(BaseModel):
+    items: list[CompanySchema]
+    total: int
+    limit: int
+    offset: int
+
+
