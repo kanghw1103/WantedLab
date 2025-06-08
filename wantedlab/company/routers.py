@@ -50,3 +50,26 @@ async def list_companies_autocomplete(
         limit=limit,
     )
 
+
+@router.get(
+    "/search",
+    response_model=CompanySchema,
+    status_code=status.HTTP_200_OK,
+    summary="회사 정보 검색",
+    description="회사 이름으로 정확한 회사 정보를 검색합니다.",
+    responses={
+        404: {
+            "description": "회사를 찾을 수 없음",
+            "content": {"application/json": {"example": {"detail": "Company not found"}}},
+        }
+    },
+)
+async def search_company_by_name(
+    name: Annotated[str, Query(min_length=1, description="검색할 회사의 정확한 이름")],
+):
+    company = await CompanyView.get_company_by_name(name)
+    if not company:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    return company
+
+

@@ -48,3 +48,30 @@ class CompanyView:
             offset=offset,
         )
 
+    @staticmethod
+    async def get_company_by_name(company_name: str) -> CompanySchema | None:
+        try:
+            company: Company = await sync_to_async(Company.objects.get)(
+                Q(name_ko=company_name) | Q(name_en=company_name) | Q(name_ja=company_name)
+            )
+        except Company.DoesNotExist:
+            return None
+        except Company.MultipleObjectsReturned:
+            raise HTTPException(status_code=400, detail="회사를 찾을 수 없습니다.")
+
+        tags = await sync_to_async(list)(company.tags.all())
+        return CompanySchema(
+            id=company.id,
+            name_ko=company.name_ko,
+            name_en=company.name_en,
+            name_ja=company.name_ja,
+            tags=[
+                CompanyTagSchema(
+                    id=tag.id,
+                    name=tag.name,
+                    number=tag.number,
+                )
+                for tag in tags
+            ],
+        )
+
