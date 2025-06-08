@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.db.models import Q, QuerySet
 from fastapi import HTTPException
 
-from wantedlab.company.models import TAG_INFO_MAP, Company, CompanyTag, Tag
+from wantedlab.company.models import Company, Tag
 from wantedlab.company.schemas import (
     AutocompletedCompanySchema,
     CompanySchema,
@@ -143,6 +143,7 @@ class CompanyView:
             tag: Tag = await sync_to_async(Tag.objects.get)(id=tag_id)
             await sync_to_async(company.tags.remove)(tag)
             return await CompanyView._company_tag_response(company, company_id)
+
         except Company.DoesNotExist:
             raise HTTPException(status_code=404, detail="회사를 찾을 수 없습니다.")
         except Tag.DoesNotExist:
